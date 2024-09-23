@@ -87,52 +87,29 @@
 </template>
 
 <script>
-import { onMounted, ref, computed } from "vue";
+import { onMounted, onBeforeUnmount, ref, computed } from "vue";
 import { useAuthStore } from "../store/auth.js";
 import { useRouter } from "vue-router";
-import { useHead } from "@vueuse/head";
+import { useAssetStore } from "../store/useAssetStore";
 
 export default {
 	name: "Login",
 	setup() {
-		useHead({
-			title: "Login",
-			link: [
-				{
-					rel: "stylesheet",
-					href: "https://cdn.jsdelivr.net/npm/@fontsource/source-sans-3@5.0.12/index.css",
-				},
-				{
-					rel: "stylesheet",
-					href: "https://cdn.jsdelivr.net/npm/overlayscrollbars@2.3.0/styles/overlayscrollbars.min.css",
-				},
-				{
-					rel: "stylesheet",
-					href: "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.min.css",
-				},
-				{
-					rel: "stylesheet",
-					href: "https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap",
-				},
-				{ rel: "stylesheet", href: "/src/assets/admin-lte/css/adminlte.css" },
-			],
-			script: [
-				{
-					src: "https://cdn.jsdelivr.net/npm/overlayscrollbars@2.3.0/browser/overlayscrollbars.browser.es6.min.js",
-					async: true,
-				},
-				{
-					src: "https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js",
-					async: true,
-				},
-				{
-					src: "https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js",
-					async: true,
-				},
-				{ src: "/src/assets/admin-lte/js/adminlte.js", async: true },
-			],
-		});
+		const assetStore = useAssetStore();
+		const cssFiles = [
+			"https://cdn.jsdelivr.net/npm/@fontsource/source-sans-3@5.0.12/index.css",
+			"https://cdn.jsdelivr.net/npm/overlayscrollbars@2.3.0/styles/overlayscrollbars.min.css",
+			"https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.min.css",
+			"https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap",
+			"/src/assets/admin-lte/css/adminlte.css",
+		];
 
+		const scriptFiles = [
+			"https://cdn.jsdelivr.net/npm/overlayscrollbars@2.3.0/browser/overlayscrollbars.browser.es6.min.js",
+			"https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js",
+			"https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js",
+			"/src/assets/admin-lte/js/adminlte.js",
+		];
 		const email = ref("");
 		const password = ref("");
 		const authStore = useAuthStore();
@@ -166,6 +143,15 @@ export default {
 				errorMessage.value = error.response.data.message;
 			}
 		};
+
+		onMounted(() => {
+      document.title = "Login";
+			assetStore.injectAssets(cssFiles, scriptFiles);
+		});
+
+		onBeforeUnmount(() => {
+			assetStore.cleanUpAssets();
+		});
 
 		return {
 			email,
